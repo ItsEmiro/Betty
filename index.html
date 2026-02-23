@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escáner de Gastos Inteligente</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .panel { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .oculto { display: none; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <h1>💰 Mis Gastos Inteligentes</h1>
+
+    <div id="panel-auth" class="panel">
+        <h2>Ingresar</h2>
+        <input type="text" id="nombre" placeholder="Tu nombre"><br><br>
+        <input type="email" id="email" placeholder="Tu correo" required><br><br>
+        <input type="password" id="password" placeholder="Tu contraseña" required><br><br>
+        <button id="btn-login">Iniciar Sesión</button>
+        <button id="btn-register">Registrarme</button>
+        <p id="msg-auth" style="color: red;"></p>
+    </div>
+
+    <div id="panel-app" class="panel oculto">
+        <h2>Bienvenido <span id="user-email"></span></h2>
+        <button id="btn-logout">Cerrar Sesión</button>
+        <hr>
+        <h3>Subir nuevo ticket</h3>
+        <input type="file" id="file-ticket" accept="image/*">
+        <button id="btn-upload">Subir y Analizar</button>
+        <hr>
+        <h3>Mis Gastos</h3>
+        <ul id="lista-gastos">
+            </ul>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
