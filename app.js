@@ -71,7 +71,7 @@ async function verificarSesion(){
 
         document.getElementById('user-email').innerText = nombreUsuario;
     }else {
-        panelApp.classList.remove('oculto');
+        panelAuth.classList.remove('oculto');
         panelApp.classList.add('oculto')
         msgAuth.innerText = "";
     }
@@ -79,7 +79,7 @@ async function verificarSesion(){
 
 //Subir Factura
 
-document.getElementById('btn-upload').addEventListener('Click', async () => {
+document.getElementById('btn-upload').addEventListener('click', async () => {
     const fileInput = document.getElementById('file-ticket');
     const file = fileInput.files[0];
 
@@ -91,8 +91,57 @@ document.getElementById('btn-upload').addEventListener('Click', async () => {
     }
 
     const btnUpload = document.getElementById('btn-upload');
-    btnUpload.innerText = "Subieno Imagen...."
+    btnUpload.innerText = "Subieno Imagen....";
     btnUpload.disabled = true;
-})
+    
+
+    try {
+        //Generar un nombre unico para guardarlo en el balde
+        const fileExt = file.name.split('.').pop(); // Este linea lo que hace es separar un nombre cada que encuentre un . y el pop() lo que hace es tomar el ultimo elemento del array
+        const fileName = `${Date.now()}.${fileExt}`;  // se crear el numero de la imagen usando la fecha y la extension.
+        
+
+        const {error: uploadError} = await supabaseClient
+            .storage
+            .from('tickets')
+            .upload(fileName,file);
+        
+        if(uploadError) throw uploadError;
+
+        //Obtener URL publica de la imagen
+        const {data,publicData } = supabaseClient
+            .storage
+            .from('tickets')
+            .getPublicUrl(fileName);
+        
+        const imagenUrl = data.publicUrl;
+
+        //Guardar el registro en la tabla datos.
+        const {data:{session }} = await supabaseClient.auth.getSession();
+
+        const {error: dbError } = await supabaseClient
+            .from('gastos')
+            .insert([
+                {
+                    user_id: session.user.id,
+                    imagen_url: imagenUrl,
+                    estado: 'procesando'
+                }
+            ]);
+        
+        if(dbError) throw dbError;
+
+        alert("Factura subida con exito! Lista para ser analizada por la IA.");
+        
+    } catch(error){
+        console.error("Errror completo: ", error);
+        alert("Hubo un error al subir: " + error.message);
+    }finally{
+        //Devolvemos el boton a la normalidad
+        btnUpload.innerText = "Subir y Analizar"
+        btnUpload.disabled = false;
+        fileInput.value = ""
+    }
+});
 
 verificarSesion()
